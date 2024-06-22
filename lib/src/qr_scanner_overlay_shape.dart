@@ -16,13 +16,10 @@ class QrScannerOverlayShape extends ShapeBorder {
   })  : cutOutWidth = cutOutWidth ?? cutOutSize ?? 250,
         cutOutHeight = cutOutHeight ?? cutOutSize ?? 250 {
     assert(
-      borderLength <=
-          min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2,
+      borderLength <= min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2,
       "Border can't be larger than ${min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2}",
     );
-    assert(
-        (cutOutWidth == null && cutOutHeight == null) ||
-            (cutOutSize == null && cutOutWidth != null && cutOutHeight != null),
+    assert((cutOutWidth == null && cutOutHeight == null) || (cutOutSize == null && cutOutWidth != null && cutOutHeight != null),
         'Use only cutOutWidth and cutOutHeight or only cutOutSize');
   }
 
@@ -75,14 +72,9 @@ class QrScannerOverlayShape extends ShapeBorder {
     final borderWidthSize = width / 2;
     final height = rect.height;
     final borderOffset = borderWidth / 2;
-    final _borderLength =
-        borderLength > min(cutOutHeight, cutOutHeight) / 2 + borderWidth * 2
-            ? borderWidthSize / 2
-            : borderLength;
-    final _cutOutWidth =
-        cutOutWidth < width ? cutOutWidth : width - borderOffset;
-    final _cutOutHeight =
-        cutOutHeight < height ? cutOutHeight : height - borderOffset;
+    final _borderLength = borderLength > min(cutOutHeight, cutOutHeight) / 2 + borderWidth * 2 ? borderWidthSize / 2 : borderLength;
+    final _cutOutWidth = cutOutWidth < width ? cutOutWidth : width - borderOffset;
+    final _cutOutHeight = cutOutHeight < height ? cutOutHeight : height - borderOffset;
 
     final backgroundPaint = Paint()
       ..color = overlayColor
@@ -100,11 +92,7 @@ class QrScannerOverlayShape extends ShapeBorder {
 
     final cutOutRect = Rect.fromLTWH(
       rect.left + width / 2 - _cutOutWidth / 2 + borderOffset,
-      -cutOutBottomOffset +
-          rect.top +
-          height / 2 -
-          _cutOutHeight / 2 +
-          borderOffset,
+      -cutOutBottomOffset + rect.top + height / 2 - _cutOutHeight / 2 + borderOffset,
       _cutOutWidth - borderOffset * 2,
       _cutOutHeight - borderOffset * 2,
     );

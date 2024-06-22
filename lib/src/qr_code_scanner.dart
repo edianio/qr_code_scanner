@@ -73,9 +73,7 @@ class _QRViewState extends State<QRView> {
     return NotificationListener(
       onNotification: onNotification,
       child: SizeChangedLayoutNotifier(
-        child: (widget.overlay != null)
-            ? _getPlatformQrViewWithOverlay()
-            : _getPlatformQrView(),
+        child: (widget.overlay != null) ? _getPlatformQrViewWithOverlay() : _getPlatformQrView(),
       ),
     );
   }
@@ -87,9 +85,7 @@ class _QRViewState extends State<QRView> {
   }
 
   Future<void> updateDimensions() async {
-    await QRViewController.updateDimensions(
-        widget.key as GlobalKey<State<StatefulWidget>>, _channel,
-        overlay: widget.overlay);
+    await QRViewController.updateDimensions(widget.key as GlobalKey<State<StatefulWidget>>, _channel, overlay: widget.overlay);
   }
 
   bool onNotification(notification) {
@@ -127,8 +123,7 @@ class _QRViewState extends State<QRView> {
           _platformQrView = AndroidView(
             viewType: 'net.touchcapture.qr.flutterqr/qrview',
             onPlatformViewCreated: _onPlatformViewCreated,
-            creationParams:
-                _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap(),
+            creationParams: _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap(),
             creationParamsCodec: const StandardMessageCodec(),
           );
           break;
@@ -136,8 +131,7 @@ class _QRViewState extends State<QRView> {
           _platformQrView = UiKitView(
             viewType: 'net.touchcapture.qr.flutterqr/qrview',
             onPlatformViewCreated: _onPlatformViewCreated,
-            creationParams:
-                _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap(),
+            creationParams: _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap(),
             creationParamsCodec: const StandardMessageCodec(),
           );
           break;
@@ -153,13 +147,9 @@ class _QRViewState extends State<QRView> {
     _channel = MethodChannel('net.touchcapture.qr.flutterqr/qrview_$id');
 
     // Start scan after creation of the view
-    final controller = QRViewController._(
-        _channel,
-        widget.key as GlobalKey<State<StatefulWidget>>?,
-        widget.onPermissionSet,
-        widget.cameraFacing)
-      .._startScan(widget.key as GlobalKey<State<StatefulWidget>>,
-          widget.overlay, widget.formatsAllowed);
+    final controller =
+        QRViewController._(_channel, widget.key as GlobalKey<State<StatefulWidget>>?, widget.onPermissionSet, widget.cameraFacing)
+          .._startScan(widget.key as GlobalKey<State<StatefulWidget>>, widget.overlay, widget.formatsAllowed);
 
     // Initialize the controller for controlling the QRView
     widget.onQRViewCreated(controller);
@@ -181,8 +171,7 @@ class _QrCameraSettings {
 }
 
 class QRViewController {
-  QRViewController._(MethodChannel channel, GlobalKey? qrKey,
-      PermissionSetCallback? onPermissionSet, CameraFacing cameraFacing)
+  QRViewController._(MethodChannel channel, GlobalKey? qrKey, PermissionSetCallback? onPermissionSet, CameraFacing cameraFacing)
       : _channel = channel,
         _cameraFacing = cameraFacing {
     _channel.setMethodCallHandler((call) async {
@@ -217,8 +206,7 @@ class QRViewController {
 
   final MethodChannel _channel;
   final CameraFacing _cameraFacing;
-  final StreamController<Barcode> _scanUpdateController =
-      StreamController<Barcode>();
+  final StreamController<Barcode> _scanUpdateController = StreamController<Barcode>();
 
   Stream<Barcode> get scannedDataStream => _scanUpdateController.stream;
 
@@ -226,13 +214,11 @@ class QRViewController {
   bool get hasPermissions => _hasPermissions;
 
   /// Starts the barcode scanner
-  Future<void> _startScan(GlobalKey key, QrScannerOverlayShape? overlay,
-      List<BarcodeFormat>? barcodeFormats) async {
+  Future<void> _startScan(GlobalKey key, QrScannerOverlayShape? overlay, List<BarcodeFormat>? barcodeFormats) async {
     // We need to update the dimension before the scan is started.
     try {
       await QRViewController.updateDimensions(key, _channel, overlay: overlay);
-      return await _channel.invokeMethod(
-          'startScan', barcodeFormats?.map((e) => e.asInt()).toList() ?? []);
+      return await _channel.invokeMethod('startScan', barcodeFormats?.map((e) => e.asInt()).toList() ?? []);
     } on PlatformException catch (e) {
       throw CameraException(e.code, e.message);
     }
@@ -243,8 +229,7 @@ class QRViewController {
     try {
       var cameraFacing = await _channel.invokeMethod('getCameraInfo') as int;
       if (cameraFacing == -1) return _cameraFacing;
-      return CameraFacing
-          .values[await _channel.invokeMethod('getCameraInfo') as int];
+      return CameraFacing.values[await _channel.invokeMethod('getCameraInfo') as int];
     } on PlatformException catch (e) {
       throw CameraException(e.code, e.message);
     }
@@ -253,8 +238,7 @@ class QRViewController {
   /// Flips the camera between available modes
   Future<CameraFacing> flipCamera() async {
     try {
-      return CameraFacing
-          .values[await _channel.invokeMethod('flipCamera') as int];
+      return CameraFacing.values[await _channel.invokeMethod('flipCamera') as int];
     } on PlatformException catch (e) {
       throw CameraException(e.code, e.message);
     }
@@ -308,8 +292,7 @@ class QRViewController {
   /// Returns which features are available on device.
   Future<SystemFeatures> getSystemFeatures() async {
     try {
-      var features =
-          await _channel.invokeMapMethod<String, dynamic>('getSystemFeatures');
+      var features = await _channel.invokeMapMethod<String, dynamic>('getSystemFeatures');
       if (features != null) {
         return SystemFeatures.fromJson(features);
       }
@@ -326,8 +309,7 @@ class QRViewController {
   }
 
   /// Updates the view dimensions for iOS.
-  static Future<bool> updateDimensions(GlobalKey key, MethodChannel channel,
-      {QrScannerOverlayShape? overlay}) async {
+  static Future<bool> updateDimensions(GlobalKey key, MethodChannel channel, {QrScannerOverlayShape? overlay}) async {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       // Add small delay to ensure the render box is loaded
       await Future.delayed(const Duration(milliseconds: 300));
@@ -349,11 +331,8 @@ class QRViewController {
       if (overlay == null) {
         return false;
       }
-      await channel.invokeMethod('changeScanArea', {
-        'scanAreaWidth': overlay.cutOutWidth,
-        'scanAreaHeight': overlay.cutOutHeight,
-        'cutOutBottomOffset': overlay.cutOutBottomOffset
-      });
+      await channel.invokeMethod('changeScanArea',
+          {'scanAreaWidth': overlay.cutOutWidth, 'scanAreaHeight': overlay.cutOutHeight, 'cutOutBottomOffset': overlay.cutOutBottomOffset});
       return true;
     }
     return false;
@@ -363,8 +342,7 @@ class QRViewController {
   Future<void> scanInvert(bool isScanInvert) async {
     if (defaultTargetPlatform == TargetPlatform.android) {
       try {
-        await _channel
-            .invokeMethod('invertScan', {"isInvertScan": isScanInvert});
+        await _channel.invokeMethod('invertScan', {"isInvertScan": isScanInvert});
       } on PlatformException catch (e) {
         throw CameraException(e.code, e.message);
       }
